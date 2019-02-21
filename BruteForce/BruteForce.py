@@ -13,14 +13,15 @@ class BruteForce:
             self.N = 1000
         else:
             self.N = N
-        self.bodies = []
+        self.bodies = [None] * N
         self.should_run = False
 
         self.setup_menu()
         self.setup_canvas()
 
-        self.start_the_bodies(self.N)
-        self.draw()
+        self.start_bodies(self.N)
+        self.draw_animation()
+        self.update_animation()
 
     def setup_menu(self):
         mainMenu = Menu(self.master)
@@ -50,22 +51,26 @@ class BruteForce:
         self.should_run = True
 
     def reset(self):
-        print("reset")
+        self.should_run = False
+        self.start_bodies(self.N)
+        self.draw_animation()
 
     def file1(self):
         print("file1")
 
-    def draw(self):
+    def update_animation(self):
         if self.should_run:
-            self.canvas.delete("all")
-            for i in range(0, self.N):
-                radius = 1e18
-                x = round(self.bodies[i].rx*250/radius) + 250
-                y = round(self.bodies[i].ry*250/radius) + 250
-                self.canvas.create_oval(
-                    x, y, x+8, y+8, fill=self.bodies[i].color)
-            self.addforces(self.N)
-        self.master.after(1, self.draw)
+            self.draw_animation()
+        self.master.after(1, self.update_animation)
+
+    def draw_animation(self):
+        self.canvas.delete("all")
+        for i in range(0, self.N):
+            radius = 1e18
+            x = round(self.bodies[i].rx*250/radius) + 250
+            y = round(self.bodies[i].ry*250/radius) + 250
+            self.canvas.create_oval(x, y, x+8, y+8, fill=self.bodies[i].color)
+        self.addforces(self.N)
 
     def circlev(self, rx, ry):
         # the bodies are initialized in circular orbits around the central mass.
@@ -75,7 +80,7 @@ class BruteForce:
         numerator = (6.67e-11)*1e6*solar_mass
         return math.sqrt(numerator/r2)
 
-    def start_the_bodies(self, N):
+    def start_bodies(self, N):
         # Initialize N bodies with random positions and circular velocities
         solar_mass = 1.98892e30
         for i in range(0, N):
@@ -97,7 +102,7 @@ class BruteForce:
             green = 255
 
             colorval = "#%02x%02x%02x" % (red, green, blue)
-            self.bodies.append(Body(px, py, vx, vy, mass, colorval))
+            self.bodies[i] = Body(px, py, vx, vy, mass, colorval)
 
         # put a heavy body in the center
         self.bodies[0] = Body(0, 0, 0, 0, 1e6*solar_mass, "red")
