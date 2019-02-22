@@ -1,8 +1,15 @@
 from tkinter import *
+from tkinter import filedialog
 import random
 import time
+import datetime
 import math
+import os
 from Body import Body
+
+
+def millis():
+    return int(round(time.time() * 1000))
 
 
 class BruteForce:
@@ -15,7 +22,12 @@ class BruteForce:
             self.N = N
         self.bodies = [None] * N
         self.should_run = False
+        self.starting_time = datetime.datetime.now()
+        self.update_time = 0
+        self.update_dt = 0
+        self.frame_count = 0
 
+        self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
 
@@ -23,22 +35,37 @@ class BruteForce:
         self.draw_animation()
         self.update_animation()
 
+    def setup_recording(self):
+        self.is_recording_data = BooleanVar()
+        self.is_recording_data.set(True)
+        path = os.path.dirname(__file__) + "/data"
+        if os.path.exists(path):
+            self.recording_directory = path
+            print("Path assigned: " + path)
+        else:
+            os.mkdir(path)
+            self.recording_directory = path
+            print("Path created and assigned: " + path)
+
     def setup_menu(self):
         mainMenu = Menu(self.master)
         self.master.configure(menu=mainMenu)
 
-        fileMenu = Menu(mainMenu)
-        animationMenu = Menu(mainMenu)
+        record_menu = Menu(mainMenu)
+        animation_menu = Menu(mainMenu)
 
-        animationMenu.add_command(label="Start Animation", command=self.start)
-        animationMenu.add_command(label="Stop Animation", command=self.stop)
-        animationMenu.add_separator()
-        animationMenu.add_command(label="Reset Animation", command=self.reset)
+        animation_menu.add_command(label="Start Animation", command=self.start)
+        animation_menu.add_command(label="Stop Animation", command=self.stop)
+        animation_menu.add_separator()
+        animation_menu.add_command(label="Reset Animation", command=self.reset)
 
-        fileMenu.add_command(label="New File", command=self.file1)
+        record_menu.add_checkbutton(
+            label="Recording Data", onvalue=1, offvalue=0, variable=self.is_recording_data)
+        record_menu.add_command(label="Choose Recording Directory",
+                                command=self.choose_directory)
 
-        mainMenu.add_cascade(label="File", menu=fileMenu)
-        mainMenu.add_cascade(label="Animation", menu=animationMenu)
+        mainMenu.add_cascade(label="Animation", menu=animation_menu)
+        mainMenu.add_cascade(label="Recording", menu=record_menu)
 
     def setup_canvas(self):
         self.canvas.config(width=500, height=500)
@@ -48,19 +75,42 @@ class BruteForce:
         self.should_run = False
 
     def start(self):
+        self.frame_count = 0
         self.should_run = True
+        self.update_time = millis()
 
     def reset(self):
         self.should_run = False
         self.start_bodies(self.N)
         self.draw_animation()
 
-    def file1(self):
-        print("file1")
+    def choose_directory(self):
+        self.recording_directory = filedialog.askdirectory(parent=self.master)
+        print("Path assigned: " + self.recording_directory)
+
+    def record_data(self):
+        file_dir = self.recording_directory + \
+            "/" + str(self.starting_time) + ".txt"
+        f = open(file_dir, "a+")
+    #    for i in range(0, self.N):
+        data = "[Frame: " + str(self.frame_count) + " | " \
+            + "Body: " + str(1) + " | " \
+            + "dt: " + str(self.update_dt) + "] " \
+            + self.bodies[1].toString() + "\n"
+        print("[Frame: " + str(self.frame_count) + "] is recorded")
+        f.write(data)
+        f.close()
 
     def update_animation(self):
         if self.should_run:
+            self.frame_count += 1
             self.draw_animation()
+
+            self.update_dt = millis() - self.update_time
+            self.update_time = millis()
+            if self.is_recording_data.get() == 1:
+                self.record_data()
+
         self.master.after(1, self.update_animation)
 
     def draw_animation(self):
@@ -82,6 +132,7 @@ class BruteForce:
 
     def start_bodies(self, N):
         # Initialize N bodies with random positions and circular velocities
+        self.starting_time = datetime.datetime.now()
         solar_mass = 1.98892e30
         for i in range(0, N):
             px = 1e18*self.exp(-1.8)*(.5-random.random())

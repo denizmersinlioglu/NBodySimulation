@@ -47,4 +47,8 @@ class Body:
 
     # convert to string representation formatted nicely
     def toString(self):
-        return "" + self.rx + ", " + self.ry + ", " + self.vx + ", " + self.vy + ", " + self.mass
+        return str(self.rx) + ", " \
+            + str(self.ry) + ", " \
+            + str(self.vx) + ", " \
+            + str(self.vy) + ", " \
+            + str(self.mass) + "\n"
