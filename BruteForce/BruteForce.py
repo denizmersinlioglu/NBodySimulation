@@ -1,15 +1,13 @@
 from tkinter import *
 from tkinter import filedialog
+from tkinter import simpledialog
+from Utils import *
 import random
 import time
 import datetime
 import math
 import os
 from Body import Body
-
-
-def millis():
-    return int(round(time.time() * 1000))
 
 
 class BruteForce:
@@ -58,10 +56,13 @@ class BruteForce:
         animation_menu.add_command(label="Stop Animation", command=self.stop)
         animation_menu.add_separator()
         animation_menu.add_command(label="Reset Animation", command=self.reset)
+        animation_menu.add_separator()
+        animation_menu.add_command(
+            label="Change Body Count", command=self.change_body_count)
 
         record_menu.add_checkbutton(
             label="Recording Data", onvalue=1, offvalue=0, variable=self.is_recording_data)
-        record_menu.add_command(label="Choose Recording Directory",
+        record_menu.add_command(label="Change Recording Directory",
                                 command=self.choose_directory)
 
         mainMenu.add_cascade(label="Animation", menu=animation_menu)
@@ -84,9 +85,25 @@ class BruteForce:
         self.start_bodies(self.N)
         self.draw_animation()
 
+    def change_body_count(self):
+        answer = simpledialog.askinteger("Body Count", "Please enter a body count for N body simulation",
+                                         parent=self.master,
+                                         minvalue=2, maxvalue=1000)
+        if answer is not None:
+            print("Body count changed to: ", answer)
+            self.N = answer
+            self.bodies = [None] * self.N
+            self.reset()
+        else:
+            print("Body count not changed")
+
     def choose_directory(self):
-        self.recording_directory = filedialog.askdirectory(parent=self.master)
-        print("Path assigned: " + self.recording_directory)
+        path = filedialog.askdirectory(parent=self.master)
+        if path is not None:
+            self.recording_directory = path
+            print("Path assigned: " + path)
+        else:
+            print("Path not changed")
 
     def record_data(self):
         file_dir = self.recording_directory + \
@@ -135,13 +152,13 @@ class BruteForce:
         self.starting_time = datetime.datetime.now()
         solar_mass = 1.98892e30
         for i in range(0, N):
-            px = 1e18*self.exp(-1.8)*(.5-random.random())
-            py = 1e18*self.exp(-1.8)*(.5-random.random())
+            px = 1e18*exp(-1.8)*(.5-random.random())
+            py = 1e18*exp(-1.8)*(.5-random.random())
             mag_v = self.circlev(px, py)
             abs_angle = math.atan(abs(py/px))
             theta_v = math.pi/2-abs_angle
-            vx = -1*self.signum(py)*math.cos(theta_v)*mag_v
-            vy = self.signum(px)*math.sin(theta_v)*mag_v
+            vx = -1*signum(py)*math.cos(theta_v)*mag_v
+            vy = signum(px)*math.sin(theta_v)*mag_v
 
             if random.random() <= .5:
                 vx = -vx
@@ -170,14 +187,3 @@ class BruteForce:
         # Then, loop again and update the bodies using timestep dt
         for i in range(0, self.N):
             self.bodies[i].update(1e11)
-
-    def exp(self, value):
-        return -math.log(1 - random.random()) / value
-
-    def signum(self, int):
-        if(int < 0):
-            return -1
-        elif(int > 0):
-            return 1
-        else:
-            return int
