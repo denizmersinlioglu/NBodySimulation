@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
+from PhysicsCalculator import *
 from Utils import *
 import random
 import time
@@ -9,9 +10,12 @@ import math
 import os
 from Body import Body
 
+solar_mass = 1.98892e30
+gravitational_constant = 6.67e-11
+
 
 class BruteForce:
-    def __init__(self, master, N):
+    def __init__(self, master, N, isCircular):
         self.master = master
         self.canvas = Canvas(master)
         if N > 1000:
@@ -24,18 +28,23 @@ class BruteForce:
         self.update_time = 0
         self.update_dt = 0
         self.frame_count = 0
+        self.isCircular = isCircular
 
         self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
 
-        self.start_bodies(self.N)
+        if self.isCircular:
+            self.start_bodies_circular(self.N)
+        else:
+            self.start_bodies_linear(self.N)
+
         self.draw_animation()
         self.update_animation()
 
     def setup_recording(self):
         self.is_recording_data = BooleanVar()
-        self.is_recording_data.set(True)
+        self.is_recording_data.set(False)
         path = os.path.dirname(__file__) + "/data"
         if os.path.exists(path):
             self.recording_directory = path
@@ -82,7 +91,10 @@ class BruteForce:
 
     def reset(self):
         self.should_run = False
-        self.start_bodies(self.N)
+        if self.isCircular:
+            self.start_bodies_circular(self.N)
+        else:
+            self.start_bodies_linear(self.N)
         self.draw_animation()
 
     def change_body_count(self):
@@ -139,26 +151,37 @@ class BruteForce:
             self.canvas.create_oval(x, y, x+8, y+8, fill=self.bodies[i].color)
         self.addforces(self.N)
 
-    def circlev(self, rx, ry):
-        # the bodies are initialized in circular orbits around the central mass.
-        # This is just some physics to do that
-        solar_mass = 1.98892e30
-        r2 = math.sqrt(rx*rx+ry*ry)
-        numerator = (6.67e-11)*1e6*solar_mass
-        return math.sqrt(numerator/r2)
+    def start_bodies_linear(self, N):
+        # Initialize N bodies with random positions and linear velocities
+        self.starting_time = datetime.datetime.now()
+        for i in range(0, N):
+            random_x = 1e18*exp(-1.8)*(.5-random.random())
+            random_y = 1e18*exp(-1.8)*(.5-random.random())
+            vx = 1e3 if random.random() <= .5 else -1e3
+            vy = 1e3 if random.random() <= .5 else -1e3
+            mass = random.random()*solar_mass*10+1e20
+            red = int(math.floor(mass*254/(solar_mass*10+1e20)))
+            blue = int(math.floor(mass*254/(solar_mass*10+1e20)))
+            green = 255
+            colorval = "#%02x%02x%02x" % (red, green, blue)
+            self.bodies[i] = Body(random_x, random_y, vx, vy, mass, colorval)
 
-    def start_bodies(self, N):
+        (kinetic_energy, potential_energy) = total_energies(self.bodies)
+        scale_factor = math.sqrt(potential_energy/(2*kinetic_energy))
+        for i in range(0, N):
+            self.bodies[i].scale_velocity(scale_factor)
+
+    def start_bodies_circular(self, N):
         # Initialize N bodies with random positions and circular velocities
         self.starting_time = datetime.datetime.now()
-        solar_mass = 1.98892e30
         for i in range(0, N):
-            px = 1e18*exp(-1.8)*(.5-random.random())
-            py = 1e18*exp(-1.8)*(.5-random.random())
-            mag_v = self.circlev(px, py)
-            abs_angle = math.atan(abs(py/px))
+            random_x = 1e18*exp(-1.8)*(.5-random.random())
+            random_y = 1e18*exp(-1.8)*(.5-random.random())
+            mag_v = circlev(random_x, random_y)
+            abs_angle = math.atan(abs(random_y/random_x))
             theta_v = math.pi/2-abs_angle
-            vx = -1*signum(py)*math.cos(theta_v)*mag_v
-            vy = signum(px)*math.sin(theta_v)*mag_v
+            vx = -1*signum(random_y)*math.cos(theta_v)*mag_v
+            vy = signum(random_x)*math.sin(theta_v)*mag_v
 
             if random.random() <= .5:
                 vx = -vx
@@ -170,7 +193,7 @@ class BruteForce:
             green = 255
 
             colorval = "#%02x%02x%02x" % (red, green, blue)
-            self.bodies[i] = Body(px, py, vx, vy, mass, colorval)
+            self.bodies[i] = Body(random_x, random_y, vx, vy, mass, colorval)
 
         # put a heavy body in the center
         self.bodies[0] = Body(0, 0, 0, 0, 1e6*solar_mass, "red")
@@ -184,6 +207,12 @@ class BruteForce:
                 if (i != j):
                     self.bodies[i].addForce(self.bodies[j])
 
-        # Then, loop again and update the bodies using timestep dt
-        for i in range(0, self.N):
-            self.bodies[i].update(1e11)
+            # Then, loop again and update the bodies using timestep dt
+            if self.isCircular:
+                self.bodies[i].update(1e11)
+            else:
+                self.bodies[i].update(1e13)
+                (velocity_cmx, velocity_cmy) = velociy_cm(self.bodies)
+                (position_cmx, position_cmy) = position_cm(self.bodies)
+                self.bodies[i].scale_cm_velocity(velocity_cmx, velocity_cmy)
+                self.bodies[i].scale_cm_position(position_cmx, position_cmy)
