@@ -157,8 +157,8 @@ class BruteForce:
         for i in range(0, N):
             random_x = 1e18*exp(-1.8)*(.5-random.random())
             random_y = 1e18*exp(-1.8)*(.5-random.random())
-            vx = 1e3 if random.random() <= .5 else -1e3
-            vy = 1e3 if random.random() <= .5 else -1e3
+            vx = random.random() if random.random() <= .5 else -random.random()
+            vy = random.random() if random.random() <= .5 else -random.random()
             mass = random.random()*solar_mass*10+1e20
             red = int(math.floor(mass*254/(solar_mass*10+1e20)))
             blue = int(math.floor(mass*254/(solar_mass*10+1e20)))
@@ -167,9 +167,15 @@ class BruteForce:
             self.bodies[i] = Body(random_x, random_y, vx, vy, mass, colorval)
 
         (kinetic_energy, potential_energy) = total_energies(self.bodies)
-        scale_factor = math.sqrt(potential_energy/(2*kinetic_energy))
+        scale_factor = math.sqrt(abs(potential_energy)/(2*kinetic_energy))
         for i in range(0, N):
             self.bodies[i].scale_velocity(scale_factor)
+
+        (velocity_cmx, velocity_cmy) = velociy_cm(self.bodies)
+        (position_cmx, position_cmy) = position_cm(self.bodies)
+        for i in range(0, N):
+            self.bodies[i].scale_cm_position(position_cmx, position_cmy)
+            self.bodies[i].scale_cm_velocity(velocity_cmx, velocity_cmy)
 
     def start_bodies_circular(self, N):
         # Initialize N bodies with random positions and circular velocities
@@ -212,7 +218,3 @@ class BruteForce:
                 self.bodies[i].update(1e11)
             else:
                 self.bodies[i].update(1e13)
-                (velocity_cmx, velocity_cmy) = velociy_cm(self.bodies)
-                (position_cmx, position_cmy) = position_cm(self.bodies)
-                self.bodies[i].scale_cm_velocity(velocity_cmx, velocity_cmy)
-                self.bodies[i].scale_cm_position(position_cmx, position_cmy)

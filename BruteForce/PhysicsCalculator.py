@@ -20,7 +20,7 @@ def total_energies(bodies):
         kinetic_energy += 0.5 * bodies[i].mass * velocity_square
         for j in iteration_range:
             if j != i:
-                potential_energy = 0.5 * bodies[i].potantial_energy(bodies[j])
+                potential_energy = bodies[i].potantial_energy(bodies[j])
             else:
                 continue
     return (kinetic_energy, potential_energy)
