@@ -7,4 +7,3 @@ print('Argument List:', str(sys.argv))
 
 master = Tk()
 brute_force = BruteForce(master, 2, False)
-master.mainloop()

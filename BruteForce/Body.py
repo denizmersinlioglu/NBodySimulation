@@ -69,7 +69,7 @@ class Body:
         return math.sqrt(rx_square + ry_square)
 
     def potantial_energy(self, body):
-        distance = self.distanceTo(body)
+        distance = abs(self.distanceTo(body))
         numerator = gravitational_constant * self.mass * body.mass
         return -0.5 * numerator/distance
 

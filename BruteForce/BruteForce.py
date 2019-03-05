@@ -23,13 +23,11 @@ class BruteForce:
         else:
             self.N = N
         self.bodies = [None] * N
-        self.should_run = False
         self.starting_time = datetime.datetime.now()
         self.update_time = 0
         self.update_dt = 0
         self.frame_count = 0
         self.isCircular = isCircular
-
         self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
@@ -40,7 +38,9 @@ class BruteForce:
             self.start_bodies_linear(self.N)
 
         self.draw_animation()
-        self.update_animation()
+
+        while 1:
+            self.update_animation()
 
     def setup_recording(self):
         self.is_recording_data = BooleanVar()
@@ -62,10 +62,7 @@ class BruteForce:
         animation_menu = Menu(mainMenu)
 
         animation_menu.add_command(label="Start Animation", command=self.start)
-        animation_menu.add_command(label="Stop Animation", command=self.stop)
-        animation_menu.add_separator()
         animation_menu.add_command(label="Reset Animation", command=self.reset)
-        animation_menu.add_separator()
         animation_menu.add_command(
             label="Change Body Count", command=self.change_body_count)
 
@@ -81,16 +78,13 @@ class BruteForce:
         self.canvas.config(width=500, height=500)
         self.canvas.pack()
 
-    def stop(self):
-        self.should_run = False
-
     def start(self):
         self.frame_count = 0
         self.should_run = True
         self.update_time = millis()
 
     def reset(self):
-        self.should_run = False
+        self.canvas.delete("all")
         if self.isCircular:
             self.start_bodies_circular(self.N)
         else:
@@ -131,7 +125,7 @@ class BruteForce:
         f.close()
 
     def update_animation(self):
-        if self.should_run:
+        while True:
             self.frame_count += 1
             self.draw_animation()
 
@@ -139,8 +133,10 @@ class BruteForce:
             self.update_time = millis()
             if self.is_recording_data.get() == 1:
                 self.record_data()
+            self.addforces()
 
-        self.master.after(1, self.update_animation)
+            self.master.update()
+            self.master.update_idletasks()
 
     def draw_animation(self):
         self.canvas.delete("all")
@@ -149,7 +145,6 @@ class BruteForce:
             x = round(self.bodies[i].rx*250/radius) + 250
             y = round(self.bodies[i].ry*250/radius) + 250
             self.canvas.create_oval(x, y, x+8, y+8, fill=self.bodies[i].color)
-        self.addforces(self.N)
 
     def start_bodies_linear(self, N):
         # Initialize N bodies with random positions and linear velocities
@@ -159,7 +154,7 @@ class BruteForce:
             random_y = 1e18*exp(-1.8)*(.5-random.random())
             vx = random.random() if random.random() <= .5 else -random.random()
             vy = random.random() if random.random() <= .5 else -random.random()
-            mass = random.random()*solar_mass*10+1e20
+            mass = (0.5 * random.random() + 0.5)*solar_mass*10+1e20
             red = int(math.floor(mass*254/(solar_mass*10+1e20)))
             blue = int(math.floor(mass*254/(solar_mass*10+1e20)))
             green = 255
@@ -204,7 +199,7 @@ class BruteForce:
         # put a heavy body in the center
         self.bodies[0] = Body(0, 0, 0, 0, 1e6*solar_mass, "red")
 
-    def addforces(self, N):
+    def addforces(self):
         # Use the method in Body to reset the forces, then add all the new forces
         for i in range(0, self.N):
             self.bodies[i].resetForce()
@@ -213,6 +208,7 @@ class BruteForce:
                 if (i != j):
                     self.bodies[i].addForce(self.bodies[j])
 
+        for i in range(0, self.N):
             # Then, loop again and update the bodies using timestep dt
             if self.isCircular:
                 self.bodies[i].update(1e11)
