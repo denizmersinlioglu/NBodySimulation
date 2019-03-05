@@ -162,7 +162,10 @@ class BruteForce:
             self.bodies[i] = Body(random_x, random_y, vx, vy, mass, colorval)
 
         (kinetic_energy, potential_energy) = total_energies(self.bodies)
+        print("Kinetic Energy:", kinetic_energy)
+        print("Potantial Energy:", potential_energy)
         scale_factor = math.sqrt(abs(potential_energy)/(2*kinetic_energy))
+        print("Scale Factor", scale_factor)
         for i in range(0, N):
             self.bodies[i].scale_velocity(scale_factor)
 

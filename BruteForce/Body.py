@@ -55,6 +55,8 @@ class Body:
         dx = body.rx - self.rx
         dy = body.ry - self.ry
         dist = math.sqrt(dx*dx + dy*dy)
+        if dist < 3E4:
+            print(dist)
         F = (self.G * self.mass * body.mass) / (dist*dist + EPS*EPS)
         self.fx += F * dx / dist
         self.fy += F * dy / dist
