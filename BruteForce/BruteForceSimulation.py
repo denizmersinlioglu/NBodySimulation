@@ -6,4 +6,4 @@ print('Number of arguments:', len(sys.argv), 'arguments.')
 print('Argument List:', str(sys.argv))
 
 master = Tk()
-brute_force = BruteForce(master, 2, False)
+brute_force = BruteForce(master, 100)

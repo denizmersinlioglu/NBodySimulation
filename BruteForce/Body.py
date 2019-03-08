@@ -1,11 +1,10 @@
 import math
 
-gravitational_constant = 6.67e-11
+G = 6.673e-11
+solarmass = 1.98892e30
 
 
 class Body:
-    G = 6.673e-11
-    solarmass = 1.98892e30
 
     # create and initialize a new Body
     def __init__(self, rx, ry, vx, vy,  mass, color):
@@ -51,29 +50,27 @@ class Body:
     # compute the net force acting between the body a and b, and
     # add to the net force acting on a
     def addForce(self, body):
-        EPS = 3E4     # softening parameter (just to avoid infinities)
+        EPS = 3E4
         dx = body.rx - self.rx
         dy = body.ry - self.ry
         dist = math.sqrt(dx*dx + dy*dy)
-        if dist < 3E4:
-            print(dist)
-        F = (self.G * self.mass * body.mass) / (dist*dist + EPS*EPS)
+        F = G * self.mass * body.mass / (dist**2 + EPS**2)
         self.fx += F * dx / dist
         self.fy += F * dy / dist
 
     def velocity(self):
-        velocity_square = math.pow(self.vx, 2) + math.pow(self.vy, 2)
+        velocity_square = self.vx**2 + self.vy**2
         return math.sqrt(velocity_square)
 
     def radius(self):
-        rx_square = math.pow(self.rx, 2)
-        ry_square = math.pow(self.ry, 2)
+        rx_square = self.rx**2
+        ry_square = self.ry**2
         return math.sqrt(rx_square + ry_square)
 
     def potantial_energy(self, body):
         distance = abs(self.distanceTo(body))
-        numerator = gravitational_constant * self.mass * body.mass
-        return -0.5 * numerator/distance
+        numerator = G * self.mass * body.mass
+        return -numerator/distance
 
     def kinetic_energy(self):
         velocity_square = math.pow(self.vx, 2) + math.pow(self.vy, 2)
