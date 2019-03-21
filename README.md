@@ -13,10 +13,10 @@ Free space N-Body Simulation according to gravitational forces using Euler's met
  * Time steps, radius of the system and the masses of the bodies are calibrated to prevent unexpected behaivor of colliding bodies.
  * Code migrated to python3.7.2
  * GUI implemented with tkinter
+ * Barnes Hut Algorithm (As a best practice over Brute Force Algorithm)
 
 ## Future Work
-- [ ] Verlet Method (As an alternative of Euler's method.)
-- [ ] Barnes Hut Algorithm (As a best practice over Brute Force Algorithm)
+- [ ] Verlet Method (As an alternative of Euler's method.) 
 - [ ] Data I/O and recording system (Correction data will be needed for numerical analysis)
 - [ ] Performance loggers (Monitor the time spent in functions scope.)
 - [ ] UI improvements (turtle or other GUI lib for python)
