@@ -25,7 +25,7 @@ Free space N-Body Simulation according to gravitational forces using Euler's met
 
 ### Brute Force
 ```
-cd /BruteForce
-python3 BruteForceSimulation.py
+cd /src
+python3 NBodyAnimator.py
 
 ```
