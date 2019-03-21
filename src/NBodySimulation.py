@@ -20,8 +20,8 @@ class NBodySimulation:
         self.master = Tk()
         self.canvas = Canvas(self.master)
         self.master.title("Brute Force")
-        if N > 1000:
-            self.N = 1000
+        if N > 2000:
+            self.N = 2000
         else:
             self.N = N
         self.bodies = [None] * N
@@ -100,7 +100,7 @@ class NBodySimulation:
     def change_body_count(self):
         answer = simpledialog.askinteger("Body Count", "Please enter a body count for N body simulation",
                                          parent=self.master,
-                                         minvalue=2, maxvalue=1000)
+                                         minvalue=2, maxvalue=2000)
         if answer is not None:
             print("Body count changed to: ", answer)
             self.N = answer
