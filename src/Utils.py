@@ -1,5 +1,7 @@
-import random
+import time
+import datetime
 import math
+import random
 
 solar_mass = 1.98892e30
 G = 6.67e-11
@@ -44,3 +46,20 @@ def position_cm(bodies):
         total_mrx += body.mass * body.rx
         total_mry += body.mass * body.ry
     return (total_mrx/total_mass, total_mry/total_mass)
+
+
+def millis():
+    return int(round(time.time() * 1000))
+
+
+def exp(value):
+    return -math.log(1 - random.random()) / value
+
+
+def signum(int):
+    if(int < 0):
+        return -1
+    elif(int > 0):
+        return 1
+    else:
+        return int

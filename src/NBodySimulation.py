@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
-from PhysicsCalculator import *
 from Utils import *
 import random
 import time
@@ -9,15 +8,18 @@ import datetime
 import math
 import os
 from Body import Body
+from Quad import Quad
+from BHTree import BHTree
 
 mass_scale = 1.98892e19
 radius = 1e5
 
 
-class BruteForce:
-    def __init__(self, master, N):
-        self.master = master
-        self.canvas = Canvas(master)
+class NBodySimulation:
+    def __init__(self, N):
+        self.master = Tk()
+        self.canvas = Canvas(self.master)
+        self.master.title("Brute Force")
         if N > 1000:
             self.N = 1000
         else:
@@ -27,6 +29,8 @@ class BruteForce:
         self.update_time = 0
         self.update_dt = 0
         self.frame_count = 0
+        self.method = "BruteForce"
+        self.quad = Quad(0, 0, 10*radius)
         self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
@@ -57,6 +61,12 @@ class BruteForce:
         animation_menu.add_command(label="Reset Animation", command=self.reset)
         animation_menu.add_command(
             label="Change Body Count", command=self.change_body_count)
+        animation_menu.add_separator()
+        animation_menu.add_command(label="Brute Force", command=self.setup_brute_force)
+        animation_menu.add_command(label="Barnes Hut", command=self.setup_barnes_hut)
+
+        record_menu.add_checkbutton(
+            label="Recording Data", onvalue=1, offvalue=0, variable=self.is_recording_data)
 
         record_menu.add_checkbutton(
             label="Recording Data", onvalue=1, offvalue=0, variable=self.is_recording_data)
@@ -72,13 +82,20 @@ class BruteForce:
 
     def start(self):
         self.frame_count = 0
-        self.should_run = True
         self.update_time = millis()
 
     def reset(self):
         self.canvas.delete("all")
         self.start_bodies(self.N)
         self.draw_animation()
+
+    def setup_brute_force(self):
+        self.master.title("Brute Force")
+        self.method = "BruteForce"
+
+    def setup_barnes_hut(self):
+        self.master.title("Barnes Hut")
+        self.method = "BarnesHut"
 
     def change_body_count(self):
         answer = simpledialog.askinteger("Body Count", "Please enter a body count for N body simulation",
@@ -115,15 +132,22 @@ class BruteForce:
 
     def update_animation(self):
         while True:
+            startTime = time.time()
             self.frame_count += 1
             self.draw_animation()
             self.update_dt = millis() - self.update_time
             self.update_time = millis()
             if self.is_recording_data.get() == 1:
                 self.record_data()
-            self.addforces()
+            if self.method == "BarnesHut":
+                self.addforcesBarnesHut()
+            else:
+                self.addforcesBruteForce()
             self.master.update()
             self.master.update_idletasks()
+            endTime = time.time()
+            elapsedTime = endTime - startTime
+            self.master.title(self.method + "FPS: {}".format(int(1/elapsedTime)))
 
     def draw_animation(self):
         self.canvas.delete("all")
@@ -158,7 +182,7 @@ class BruteForce:
             body.scale_cm_position(position_cmx, position_cmy)
             body.scale_cm_velocity(velocity_cmx, velocity_cmy)
 
-    def addforces(self):
+    def addforcesBruteForce(self):
         # Use the method in Body to reset the forces, then add all the new forces
         for body in self.bodies:
             body.resetForce()
@@ -170,5 +194,21 @@ class BruteForce:
 
         for body in self.bodies:
             # Then, loop again and update the bodies using timestep dt
-            time_step = 1
-            body.update(time_step)
+            body.update(1)
+
+    # The BH algorithm: calculate the forces
+
+    def addforcesBarnesHut(self):
+        thetree = BHTree(self.quad)
+        # If the body is still on the screen, add it to the tree
+        for body in self.bodies:
+            if (body.inside(self.quad)):
+                thetree.insert(body)
+            # Now, use out methods in BHTree to update the forces,
+            # traveling recursively through the tree
+        for body in self.bodies:
+            body.resetForce()
+            if (body.inside(self.quad)):
+                thetree.updateForce(body)
+                # Calculate the new positions on a time step dt(1e11 here)
+                body.update(1)

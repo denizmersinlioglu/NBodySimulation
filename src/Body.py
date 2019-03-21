@@ -76,6 +76,17 @@ class Body:
         velocity_square = math.pow(self.vx, 2) + math.pow(self.vy, 2)
         return 0.5 * self.mass * velocity_square
 
+    def inside(self, quad):
+        return quad.contains(self.rx, self.ry)
+
+    def add(self, body):
+        total_mass = self.mass + body.mass
+        rx_center = (self.rx * self.mass + body.rx * body.mass) / total_mass
+        ry_center = (self.ry * self.mass + body.ry * body.mass) / total_mass
+        vx_center = (self.vx * self.mass + body.vx * body.mass) / total_mass
+        vy_center = (self.vy * self.mass + body.vy * body.mass) / total_mass
+        return Body(rx_center, ry_center, vx_center, vy_center, total_mass, self.color)
+
     # convert to string representation formatted nicely
     def toString(self):
         return str(self.rx) + ", " \
