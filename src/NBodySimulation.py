@@ -19,7 +19,7 @@ class NBodySimulation:
     def __init__(self, N):
         self.master = Tk()
         self.canvas = Canvas(self.master)
-        self.master.title("Brute Force")
+        self.master.title("Brute Force - Euler :")
         if N > 2000:
             self.N = 2000
         else:
@@ -30,6 +30,7 @@ class NBodySimulation:
         self.update_dt = 0
         self.frame_count = 0
         self.method = "BruteForce"
+        self.update_method = "Euler"
         self.quad = Quad(0, 0, 10*radius)
         self.setup_recording()
         self.setup_menu()
@@ -64,6 +65,9 @@ class NBodySimulation:
         animation_menu.add_separator()
         animation_menu.add_command(label="Brute Force", command=self.setup_brute_force)
         animation_menu.add_command(label="Barnes Hut", command=self.setup_barnes_hut)
+        animation_menu.add_separator()
+        animation_menu.add_command(label="Euler", command=self.setup_euler)
+        animation_menu.add_command(label="Verlet", command=self.setup_verlet)
 
         record_menu.add_checkbutton(
             label="Recording Data", onvalue=1, offvalue=0, variable=self.is_recording_data)
@@ -90,12 +94,20 @@ class NBodySimulation:
         self.draw_animation()
 
     def setup_brute_force(self):
-        self.master.title("Brute Force")
+        self.master.title("Brute Force - {} :".format(self.update_method))
         self.method = "BruteForce"
 
     def setup_barnes_hut(self):
-        self.master.title("Barnes Hut")
+        self.master.title("Barnes Hut - {} :".format(self.update_method))
         self.method = "BarnesHut"
+
+    def setup_euler(self):
+        self.master.title("{} - Euler :".format(self.method))
+        self.update_method = "Euler"
+
+    def setup_verlet(self):
+        self.master.title("{} - Verlet :".format(self.method))
+        self.update_method = "Verlet"
 
     def change_body_count(self):
         answer = simpledialog.askinteger("Body Count", "Please enter a body count for N body simulation",
@@ -121,7 +133,7 @@ class NBodySimulation:
         file_dir = self.recording_directory + \
             "/" + str(self.starting_time) + ".txt"
         f = open(file_dir, "a+")
-    #    for i in range(0, self.N):
+        # for i in range(0, self.N):
         data = "[Frame: " + str(self.frame_count) + " | " \
             + "Body: " + str(1) + " | " \
             + "dt: " + str(self.update_dt) + "] " \
@@ -147,7 +159,8 @@ class NBodySimulation:
             self.master.update_idletasks()
             endTime = time.time()
             elapsedTime = endTime - startTime
-            self.master.title(self.method + "FPS: {}".format(int(1/elapsedTime)))
+            self.master.title("{} - {} - FPS: {}".format(self.method,
+                                                         self.update_method, int(1/elapsedTime)))
 
     def draw_animation(self):
         self.canvas.delete("all")
@@ -194,9 +207,10 @@ class NBodySimulation:
 
         for body in self.bodies:
             # Then, loop again and update the bodies using timestep dt
-            body.update(1)
-
-    # The BH algorithm: calculate the forces
+            if self.update_method == "Verlet":
+                body.updateVerlet(1)
+            else:
+                body.update(1)
 
     def addforcesBarnesHut(self):
         thetree = BHTree(self.quad)
@@ -210,5 +224,8 @@ class NBodySimulation:
             body.resetForce()
             if (body.inside(self.quad)):
                 thetree.updateForce(body)
-                # Calculate the new positions on a time step dt(1e11 here)
-                body.update(1)
+                # Calculate the new positions on a time step dt
+                if self.update_method == "Verlet":
+                    body.updateVerlet(1)
+                else:
+                    body.update(1)

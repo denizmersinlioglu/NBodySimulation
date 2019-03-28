@@ -10,12 +10,15 @@ class Body:
     def __init__(self, rx, ry, vx, vy,  mass, color):
         self.rx = rx        # holds the cartesian X position
         self.ry = ry        # holds the cartesian Y position
+        self._rx = 0        # X position for Verlet Algorithm
+        self._ry = 0        # Y position for Verlet Algorithm
         self.vx = vx        # velocity component X
         self.vy = vy        # velocity component Y
         self.mass = mass    # color (for fun)
         self.fx = 0         # force component X
         self.fy = 0         # force component Y
         self.color = color  # Color for Fun
+        self.isVerletInitialized = False
 
     def scale_cm_velocity(self, velocity_cmx, velocity_cmy):
         self.vx = self.vx - velocity_cmx
@@ -47,8 +50,24 @@ class Body:
         self.fx = 0.0
         self.fy = 0.0
 
-    # compute the net force acting between the body a and b, and
-    # add to the net force acting on a
+    def runFirstVerletLoop(self, dt):
+        self._rx = self.rx
+        self._ry = self.ry
+        self.rx += self.vx*dt + (0.5 * (dt**2) * self.fx / self.mass)
+        self.ry += self.vy*dt + (0.5 * (dt**2) * self.fy / self.mass)
+
+    def updateVerlet(self, dt):
+        if not self.isVerletInitialized:
+            self.runFirstVerletLoop(dt)
+            self.isVerletInitialized = True
+
+        rx_new = (2 * self.rx) - self._rx + ((dt**2) * self.fx / self.mass)
+        ry_new = (2 * self.ry) - self._ry + ((dt**2) * self.fy / self.mass)
+        self._rx = self.rx
+        self._ry = self.ry
+        self.rx = rx_new
+        self.ry = ry_new
+
     def addForce(self, body):
         EPS = 3E4
         dx = body.rx - self.rx
