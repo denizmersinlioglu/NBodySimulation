@@ -1,7 +1,7 @@
 import math
 
-G = 6.673e-11
-solarmass = 1.98892e30
+GRAVITY_CONST = 6.673e-11
+SOLAR_MASS = 1.98892e30
 
 
 class Body:
@@ -73,7 +73,7 @@ class Body:
         dx = body.rx - self.rx
         dy = body.ry - self.ry
         dist = math.sqrt(dx*dx + dy*dy)
-        F = G * self.mass * body.mass / (dist**2 + EPS**2)
+        F = GRAVITY_CONST * self.mass * body.mass / (dist**2 + EPS**2)
         self.fx += F * dx / dist
         self.fy += F * dy / dist
 
@@ -88,7 +88,7 @@ class Body:
 
     def potantial_energy(self, body):
         distance = abs(self.distanceTo(body))
-        numerator = G * self.mass * body.mass
+        numerator = GRAVITY_CONST * self.mass * body.mass
         return -numerator/distance
 
     def kinetic_energy(self):

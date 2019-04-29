@@ -11,8 +11,8 @@ from Body import Body
 from Quad import Quad
 from BHTree import BHTree
 
-mass_scale = 1.98892e19
-radius = 1e5
+MASS_SCALE = 1.98892e19
+RADIUS = 1e5
 
 
 class NBodySimulation:
@@ -31,7 +31,7 @@ class NBodySimulation:
         self.frame_count = 0
         self.method = "BruteForce"
         self.update_method = "Euler"
-        self.quad = Quad(0, 0, 10*radius)
+        self.quad = Quad(0, 0, 10*RADIUS)
         self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
@@ -54,6 +54,7 @@ class NBodySimulation:
     def setup_menu(self):
         mainMenu = Menu(self.master)
         self.master.configure(menu=mainMenu)
+        self.master.configure(background='black')
 
         record_menu = Menu(mainMenu)
         animation_menu = Menu(mainMenu)
@@ -82,6 +83,7 @@ class NBodySimulation:
 
     def setup_canvas(self):
         self.canvas.config(width=1200, height=800)
+        self.canvas.config(bg="#323232")
         self.canvas.pack()
 
     def start(self):
@@ -152,34 +154,34 @@ class NBodySimulation:
             if self.is_recording_data.get() == 1:
                 self.record_data()
             if self.method == "BarnesHut":
-                self.addforcesBarnesHut()
+                self.add_force_barnes_hut()
             else:
-                self.addforcesBruteForce()
+                self.add_forces_brute_force()
             self.master.update()
             self.master.update_idletasks()
-            endTime = time.time()
-            elapsedTime = endTime - startTime
+            end_time = time.time()
+            elapsed_time = end_time - startTime
             self.master.title("{} - {} - FPS: {}".format(self.method,
-                                                         self.update_method, int(1/elapsedTime)))
+                                                         self.update_method, int(1/elapsed_time)))
 
     def draw_animation(self):
         self.canvas.delete("all")
         for body in self.bodies:
-            x = round(body.rx*600/radius) + 600
-            y = round(body.ry*400/radius) + 400
+            x = round(body.rx*600/RADIUS) + 600
+            y = round(body.ry*400/RADIUS) + 400
             self.canvas.create_oval(x, y, x+8, y+8, fill=body.color)
 
     def start_bodies(self, N):
         # Initialize N bodies with random positions and linear velocities
         self.starting_time = datetime.datetime.now()
         for i in range(0, N):
-            random_x = radius * (.5 - 1.2 * random.random())
-            random_y = radius * (.5 - 1.2 * random.random())
+            random_x = RADIUS * (.5 - 1.2 * random.random())
+            random_y = RADIUS * (.5 - 1.2 * random.random())
             vx = random.random() if random.random() < .5 else -random.random()
             vy = random.random() if random.random() < .5 else -random.random()
-            mass = (0.5 * random.random() + 0.5)*mass_scale
-            red = int(math.floor(mass*254/(mass_scale)))
-            blue = int(math.floor(mass*254/(mass_scale)))
+            mass = (0.5 * random.random() + 0.5)*MASS_SCALE
+            red = int(math.floor(mass*254/(MASS_SCALE)))
+            blue = int(math.floor(mass*254/(MASS_SCALE)))
             green = 255
             colorval = "#%02x%02x%02x" % (red, green, blue)
             self.bodies[i] = Body(random_x, random_y, vx, vy, mass, colorval)
@@ -195,7 +197,7 @@ class NBodySimulation:
             body.scale_cm_position(position_cmx, position_cmy)
             body.scale_cm_velocity(velocity_cmx, velocity_cmy)
 
-    def addforcesBruteForce(self):
+    def add_forces_brute_force(self):
         # Use the method in Body to reset the forces, then add all the new forces
         for body in self.bodies:
             body.resetForce()
@@ -212,7 +214,7 @@ class NBodySimulation:
             else:
                 body.update(1)
 
-    def addforcesBarnesHut(self):
+    def add_force_barnes_hut(self):
         thetree = BHTree(self.quad)
         # If the body is still on the screen, add it to the tree
         for body in self.bodies:
@@ -222,7 +224,7 @@ class NBodySimulation:
             # traveling recursively through the tree
         for body in self.bodies:
             body.resetForce()
-            if (body.inside(self.quad)):
+            if body.inside(self.quad):
                 thetree.updateForce(body)
                 # Calculate the new positions on a time step dt
                 if self.update_method == "Verlet":
