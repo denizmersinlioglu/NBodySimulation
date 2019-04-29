@@ -89,7 +89,7 @@ class BHTree:
         if self.is_external(self):
             if self.body != body:
                 body.add_force(self.body)
-        elif self.quad.get_length()/self.body.distanceTo(body) < 2:
+        elif self.quad.get_length()/self.body.distance_to(body) < 2:
             body.add_force(self.body)
         else:
             if self.NW is not None:

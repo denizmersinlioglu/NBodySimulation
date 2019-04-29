@@ -113,7 +113,8 @@ class NBodySimulation:
         self.update_method = "Verlet"
 
     def change_body_count(self):
-        answer = simpledialog.askinteger("Body Count", "Please enter a body count for N body simulation",
+        answer = simpledialog.askinteger("Body Count",
+                                         "Please enter a body count for N body simulation",
                                          parent=self.master,
                                          minvalue=2, maxvalue=2000)
         if answer is not None:
@@ -211,7 +212,7 @@ class NBodySimulation:
         for body in self.bodies:
             # Then, loop again and update the bodies using timestep dt
             if self.update_method == "Verlet":
-                body.updateVerlet(1)
+                body.update_verlet(1)
             else:
                 body.update(1)
 
@@ -229,6 +230,6 @@ class NBodySimulation:
                 thetree.update_force(body)
                 # Calculate the new positions on a time step dt
                 if self.update_method == "Verlet":
-                    body.updateVerlet(1)
+                    body.update_verlet(1)
                 else:
                     body.update(1)
