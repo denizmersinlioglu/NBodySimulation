@@ -201,12 +201,12 @@ class NBodySimulation:
     def add_forces_brute_force(self):
         # Use the method in Body to reset the forces, then add all the new forces
         for body in self.bodies:
-            body.resetForce()
+            body.reset_force()
             # Notice-2 loops-->N ^ 2 complexity
             for other in self.bodies:
                 if body is other:
                     continue
-                body.addForce(other)
+                body.add_force(other)
 
         for body in self.bodies:
             # Then, loop again and update the bodies using timestep dt
@@ -224,7 +224,7 @@ class NBodySimulation:
             # Now, use out methods in BHTree to update the forces,
             # traveling recursively through the tree
         for body in self.bodies:
-            body.resetForce()
+            body.reset_force()
             if body.inside(self.quad):
                 thetree.update_force(body)
                 # Calculate the new positions on a time step dt

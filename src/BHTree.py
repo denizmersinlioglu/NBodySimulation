@@ -88,9 +88,9 @@ class BHTree:
     def update_force(self, body):
         if self.is_external(self):
             if self.body != body:
-                body.addForce(self.body)
+                body.add_force(self.body)
         elif self.quad.get_length()/self.body.distanceTo(body) < 2:
-            body.addForce(self.body)
+            body.add_force(self.body)
         else:
             if self.NW is not None:
                 self.NW.update_force(body)
