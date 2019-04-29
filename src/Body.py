@@ -40,25 +40,25 @@ class Body:
         self.ry += dt * self.vy
 
     # returns the distance between two bodies
-    def distanceTo(self, body):
+    def distance_to(self, body):
         dx = self.rx - body.rx
         dy = self.ry - body.ry
         return math.sqrt(dx*dx + dy*dy)
 
     # set the force to 0 for the next iteration
-    def resetForce(self):
+    def reset_force(self):
         self.fx = 0.0
         self.fy = 0.0
 
-    def runFirstVerletLoop(self, dt):
+    def run_first_verlet_loop(self, dt):
         self._rx = self.rx
         self._ry = self.ry
         self.rx += self.vx*dt + (0.5 * (dt**2) * self.fx / self.mass)
         self.ry += self.vy*dt + (0.5 * (dt**2) * self.fy / self.mass)
 
-    def updateVerlet(self, dt):
+    def update_verlet(self, dt):
         if not self.isVerletInitialized:
-            self.runFirstVerletLoop(dt)
+            self.run_first_verlet_loop(dt)
             self.isVerletInitialized = True
 
         rx_new = (2 * self.rx) - self._rx + ((dt**2) * self.fx / self.mass)
@@ -68,7 +68,7 @@ class Body:
         self.rx = rx_new
         self.ry = ry_new
 
-    def addForce(self, body):
+    def add_force(self, body):
         EPS = 3E4
         dx = body.rx - self.rx
         dy = body.ry - self.ry
@@ -87,7 +87,7 @@ class Body:
         return math.sqrt(rx_square + ry_square)
 
     def potantial_energy(self, body):
-        distance = abs(self.distanceTo(body))
+        distance = abs(self.distance_to(body))
         numerator = GRAVITY_CONST * self.mass * body.mass
         return -numerator/distance
 
@@ -107,7 +107,7 @@ class Body:
         return Body(rx_center, ry_center, vx_center, vy_center, total_mass, self.color)
 
     # convert to string representation formatted nicely
-    def toString(self):
+    def to_string(self):
         return str(self.rx) + ", " \
             + str(self.ry) + ", " \
             + str(self.vx) + ", " \

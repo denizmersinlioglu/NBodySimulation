@@ -1,5 +1,6 @@
 class BHTree:
-    # Create and initialize a new bhtree. Initially, all nodes are None and will be filled by recursion
+    # Create and initialize a new bhtree.
+    # Initially, all nodes are None and will be filled by recursion
     # Each BHTree represents a quadrant and a body that represents all bodies inside the quadrant
     def __init__(self, quad):
         self.quad = quad     # square region that the tree represents
@@ -9,14 +10,16 @@ class BHTree:
         self.SW = None       # tree representing southwest quadrant
         self.SE = None       # tree representing southeast quadrant
 
-    # If all nodes of the BHTree are None, then the quadrant represents a single body and it is "external"
+    # If all nodes of the BHTree are None,
+    # then the quadrant represents a single body and it is "external"
     def is_external(self, tree):
         return tree.NW is None \
             and tree.NE is None \
             and tree.SW is None \
             and tree.SE is None
 
-    # We have to populate the tree with bodies. We start at the current tree and recursively travel through the branches
+    # We have to populate the tree with bodies.
+    #  We start at the current tree and recursively travel through the branches
     def insert(self, body):
         # If there's not a body there already, put the body there.
         if self.body is None:

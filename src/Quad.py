@@ -1,5 +1,3 @@
-
-
 class Quad:
 
     def __init__(self, xmid, ymid, length):

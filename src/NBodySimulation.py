@@ -32,6 +32,7 @@ class NBodySimulation:
         self.method = "BruteForce"
         self.update_method = "Euler"
         self.quad = Quad(0, 0, 10*RADIUS)
+        self.recording_directory = ""
         self.setup_recording()
         self.setup_menu()
         self.setup_canvas()
@@ -218,7 +219,7 @@ class NBodySimulation:
         thetree = BHTree(self.quad)
         # If the body is still on the screen, add it to the tree
         for body in self.bodies:
-            if (body.inside(self.quad)):
+            if body.inside(self.quad):
                 thetree.insert(body)
             # Now, use out methods in BHTree to update the forces,
             # traveling recursively through the tree
