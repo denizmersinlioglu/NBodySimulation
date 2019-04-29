@@ -10,7 +10,7 @@ class BHTree:
         self.SE = None       # tree representing southeast quadrant
 
     # If all nodes of the BHTree are None, then the quadrant represents a single body and it is "external"
-    def isExternal(self, tree):
+    def is_external(self, tree):
         return tree.NW is None \
             and tree.NE is None \
             and tree.SW is None \
@@ -25,7 +25,7 @@ class BHTree:
         # If there's already a body there, but it's not an external node
         # combine the two bodies and figure out which quadrant of the
         # tree it should be located in. Then recursively update the nodes below it.
-        elif not self.isExternal(self):
+        elif not self.is_external(self):
             self.body = body.add(self.body)
             northwest = self.quad.NW()
             if body.inside(northwest):
@@ -53,7 +53,7 @@ class BHTree:
         # If the node is external and contains another body, create BHTrees
         # where the bodies should go, update the node, and end
         # (do not do anything recursively)
-        elif self.isExternal(self):
+        elif self.is_external(self):
             c = self.body
             northwest = self.quad.NW()
             if c.inside(northwest):
@@ -82,24 +82,24 @@ class BHTree:
     # Start at the main node of the tree. Then, recursively go each branch
     # Until either we reach an external node or we reach a node that is sufficiently
     # far away that the external nodes would not matter much.
-    def updateForce(self, body):
-        if self.isExternal(self):
+    def update_force(self, body):
+        if self.is_external(self):
             if self.body != body:
                 body.addForce(self.body)
         elif self.quad.get_length()/self.body.distanceTo(body) < 2:
             body.addForce(self.body)
         else:
             if self.NW is not None:
-                self.NW.updateForce(body)
+                self.NW.update_force(body)
             if self.SW is not None:
-                self.SW.updateForce(body)
+                self.SW.update_force(body)
             if self.SE is not None:
-                self.SE.updateForce(body)
+                self.SE.update_force(body)
             if self.NE is not None:
-                self.NE.updateForce(body)
+                self.NE.update_force(body)
 
     # convert to string representation for output
-    def toString(self):
+    def to_string(self):
         if self.NE is not None \
                 or self.NW is not None \
                 or self.SW is not None \

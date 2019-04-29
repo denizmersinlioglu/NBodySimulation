@@ -225,7 +225,7 @@ class NBodySimulation:
         for body in self.bodies:
             body.resetForce()
             if body.inside(self.quad):
-                thetree.updateForce(body)
+                thetree.update_force(body)
                 # Calculate the new positions on a time step dt
                 if self.update_method == "Verlet":
                     body.updateVerlet(1)
