@@ -23,10 +23,7 @@ class Quad:
         return Quad(self.xmid+self.length/4.0, self.ymid-self.length/4.0, self.length/2.0)
 
     def contains(self, xmid, ymid):
-        if xmid <= self.xmid+self.length/2.0 \
-                and xmid >= self.xmid-self.length/2.0 \
-                and ymid <= self.ymid+self.length/2.0  \
-                and ymid >= self.ymid-self.length/2.0:
-            return True
-        else:
-            return False
+        return xmid <= self.xmid+self.length/2.0 \
+            and xmid >= self.xmid-self.length/2.0 \
+            and ymid <= self.ymid+self.length/2.0  \
+            and ymid >= self.ymid-self.length/2.0

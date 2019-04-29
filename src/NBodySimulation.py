@@ -52,12 +52,12 @@ class NBodySimulation:
             print("Path created and assigned: " + path)
 
     def setup_menu(self):
-        mainMenu = Menu(self.master)
-        self.master.configure(menu=mainMenu)
+        main_menu = Menu(self.master)
+        self.master.configure(menu=main_menu)
         self.master.configure(background='black')
 
-        record_menu = Menu(mainMenu)
-        animation_menu = Menu(mainMenu)
+        record_menu = Menu(main_menu)
+        animation_menu = Menu(main_menu)
 
         animation_menu.add_command(label="Start Animation", command=self.start)
         animation_menu.add_command(label="Reset Animation", command=self.reset)
@@ -78,8 +78,8 @@ class NBodySimulation:
         record_menu.add_command(label="Change Recording Directory",
                                 command=self.choose_directory)
 
-        mainMenu.add_cascade(label="Animation", menu=animation_menu)
-        mainMenu.add_cascade(label="Recording", menu=record_menu)
+        main_menu.add_cascade(label="Animation", menu=animation_menu)
+        main_menu.add_cascade(label="Recording", menu=record_menu)
 
     def setup_canvas(self):
         self.canvas.config(width=1200, height=800)
@@ -146,7 +146,7 @@ class NBodySimulation:
 
     def update_animation(self):
         while True:
-            startTime = time.time()
+            start_time = time.time()
             self.frame_count += 1
             self.draw_animation()
             self.update_dt = millis() - self.update_time
@@ -160,7 +160,7 @@ class NBodySimulation:
             self.master.update()
             self.master.update_idletasks()
             end_time = time.time()
-            elapsed_time = end_time - startTime
+            elapsed_time = end_time - start_time
             self.master.title("{} - {} - FPS: {}".format(self.method,
                                                          self.update_method, int(1/elapsed_time)))
 

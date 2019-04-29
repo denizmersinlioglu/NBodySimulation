@@ -11,73 +11,70 @@ class BHTree:
 
     # If all nodes of the BHTree are None, then the quadrant represents a single body and it is "external"
     def isExternal(self, tree):
-        if tree.NW == None \
-                and tree.NE == None \
-                and tree.SW == None \
-                and tree.SE == None:
-            return True
-        else:
-            return False
+        return tree.NW is None \
+            and tree.NE is None \
+            and tree.SW is None \
+            and tree.SE is None
 
     # We have to populate the tree with bodies. We start at the current tree and recursively travel through the branches
     def insert(self, body):
         # If there's not a body there already, put the body there.
-        if self.body == None:
+        if self.body is None:
             self.body = body
 
         # If there's already a body there, but it's not an external node
         # combine the two bodies and figure out which quadrant of the
         # tree it should be located in. Then recursively update the nodes below it.
-        elif (self.isExternal(self) == False):
+        elif not self.isExternal(self):
             self.body = body.add(self.body)
             northwest = self.quad.NW()
-            if (body.inside(northwest)):
-                if (self.NW == None):
+            if body.inside(northwest):
+                if self.NW is None:
                     self.NW = BHTree(northwest)
                 self.NW.insert(body)
             else:
                 northeast = self.quad.NE()
-                if (body.inside(northeast)):
-                    if (self.NE == None):
+                if body.inside(northeast):
+                    if self.NE is None:
                         self.NE = BHTree(northeast)
                     self.NE.insert(body)
                 else:
                     southeast = self.quad.SE()
-                    if (body.inside(southeast)):
-                        if (self.SE == None):
+                    if body.inside(southeast):
+                        if self.SE is None:
                             self.SE = BHTree(southeast)
                         self.SE.insert(body)
                     else:
                         southwest = self.quad.SW()
-                        if(self.SW == None):
+                        if(self.SW is None):
                             self.SW = BHTree(southwest)
                         self.SW.insert(body)
 
         # If the node is external and contains another body, create BHTrees
         # where the bodies should go, update the node, and end
         # (do not do anything recursively)
-        elif (self.isExternal(self) == True):
+        elif self.isExternal(self):
             c = self.body
             northwest = self.quad.NW()
-            if (c.inside(northwest)):
-                if (self.NW == None):
+            if c.inside(northwest):
+                if self.NW is None:
                     self.NW = BHTree(northwest)
                 self.NW.insert(c)
             else:
                 northeast = self.quad.NE()
-                if (c.inside(northeast)):
-                    if (self.NE == None):
+                if c.inside(northeast):
+                    if self.NE is None:
                         self.NE = BHTree(northeast)
                     self.NE.insert(c)
                 else:
                     southeast = self.quad.SE()
-                    if (c.inside(southeast)):
-                        if (self.SE == None):
+                    if c.inside(southeast):
+                        if self.SE is None:
                             self.SE = BHTree(southeast)
                         self.SE.insert(c)
                     else:
                         southwest = self.quad.SW()
-                        if(self.SW == None):
+                        if self.SW is None:
                             self.SW = BHTree(southwest)
                         self.SW.insert(c)
             self.insert(body)
@@ -86,27 +83,27 @@ class BHTree:
     # Until either we reach an external node or we reach a node that is sufficiently
     # far away that the external nodes would not matter much.
     def updateForce(self, body):
-        if (self.isExternal(self)):
-            if (self.body != body):
+        if self.isExternal(self):
+            if self.body != body:
                 body.addForce(self.body)
         elif self.quad.get_length()/self.body.distanceTo(body) < 2:
             body.addForce(self.body)
         else:
-            if (self.NW != None):
+            if self.NW is not None:
                 self.NW.updateForce(body)
-            if (self.SW != None):
+            if self.SW is not None:
                 self.SW.updateForce(body)
-            if (self.SE != None):
+            if self.SE is not None:
                 self.SE.updateForce(body)
-            if (self.NE != None):
+            if self.NE is not None:
                 self.NE.updateForce(body)
 
     # convert to string representation for output
     def toString(self):
-        if self.NE != None \
-                or self.NW != None \
-                or self.SW != None \
-                or self.SE != None:
+        if self.NE is not None \
+                or self.NW is not None \
+                or self.SW is not None \
+                or self.SE is not None:
             return "*" + self.body + "\n" + self.NW + self.NE + self.SW + self.SE
-        else:
-            return " " + self.body + "\n"
+
+        return " " + self.body + "\n"
